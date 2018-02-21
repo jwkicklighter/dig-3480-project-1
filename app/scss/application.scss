@@ -1,0 +1,149 @@
+@import 'reset';
+@import 'common';
+@import 'base';
+
+// Project-specific variables
+$answer-background-color: $blue;
+$answer-background-color--hover: lighten($answer-background-color, 5%);
+$answer-background-color--selected: $green;
+$answer-background-color--selected-hover: lighter($answer-background-color--selected, 5%);
+$answer-text-color: $white;
+
+$answer-margin-size: 20px;
+$min-answer-size: 250px;
+$query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
+
+
+// Project-specific styles
+.templates {
+  display: none;
+}
+
+.main-window {
+  background-color: #ddd;
+  border-radius: 10px;
+  margin: 20px;
+  padding: 20px;
+
+  &-footer {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.next-button,
+.prev-button {
+  background-color: $blue;
+  border: none;
+  border-radius: 4px;
+  color: $white;
+  cursor: pointer;
+  font-size: 1em;
+  padding: 10px 20px;
+  outline: none;
+
+  transition-property: background-color;
+  transition-duration: .25s;
+  transition-timing-function: ease-in-out;
+
+  &:not(:disabled):hover {
+    background-color: lighten($blue, 5%);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: .8;
+  }
+}
+
+.next-button {
+  align-self: flex-end;
+}
+
+.question-container {
+  // display: flex;
+}
+
+.question {
+  display: none;
+
+  &.visible {
+    display: block;
+  }
+}
+
+.question-prompt {
+  text-align: center;
+}
+
+.answer-container {
+  display: flex;
+  color: $answer-text-color;
+  font-size: 1.5em;
+  flex-flow: wrap;
+  padding: $answer-margin-size;
+}
+
+.radio-container {
+  @extend .no-select;
+
+  display: flex;
+  position: relative;
+  height: $min-answer-size;
+  align-items: center;
+  justify-content: center;
+  margin: $answer-margin-size;
+  text-align: center;
+  flex-basis: $min-answer-size;
+  flex-grow: 0;
+  flex-shrink: 0;
+  
+  transition-property: transform;
+  transition-duration: .25s;
+  transition-timing-function: cubic-bezier(0.75, -0.75, 0.25, 1.75);
+  
+  @media (max-width: $query-size) {
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+
+  input {
+    position: absolute;
+    opacity: 0;
+  }
+  
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    cursor: pointer;
+    
+    transition-timing-function: ease-in-out;
+    transition-duration: .2s;
+    transition-property: background-color;
+    
+    // Actual styling
+    background-color: $answer-background-color;
+    border-radius: 10px;
+  }
+  
+  input:checked ~ .checkmark {
+    background-color: $answer-background-color--selected;
+  }
+  
+  &:hover {
+    transform: scale(1.1);
+    
+    .checkmark {
+      background-color: $answer-background-color--hover;
+    }
+  }
+  
+  .label {
+    cursor: pointer;
+    z-index: 2;
+  }
+}

@@ -1,0 +1,14 @@
+@import 'colors';
+
+// Set base style settings
+$base-font-size: 18px;
+$base-background-color: $white;
+$base-font-color: $black;
+
+// Some base classes
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
