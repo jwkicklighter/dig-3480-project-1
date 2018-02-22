@@ -4,33 +4,35 @@ const allQuestions = require('./questions.js')
 const NEXT_BUTTON_ID = 'next-button'
 const PREV_BUTTON_ID = 'prev-button'
 
-const store = {
+window.store = {
   selected: 0,
-  questionContainer: null
+  questionContainer: null,
+  answers: {}
 }
 
-function createSingleAnswer (label, name) {
+function createSingleAnswer (idx, answer) {
   const answerTemplate = document.getElementById('single-answer').innerHTML
-  const template = answerTemplate.replace('#LABEL', label).replace('#NAME', name)
-
-  return Utils.htmlToElement(template)
+  answer.value = idx
+  return Utils.buildTemplate(answerTemplate, answer)
 }
 
 function createAnswerSet (answers) {
   const answerContainerTemplate = document.getElementById('answer-container').innerHTML
-  const node = Utils.htmlToElement(answerContainerTemplate)
+  const node = Utils.buildTemplate(answerContainerTemplate)
 
-  for (let answer of answers) {
-    node.appendChild(createSingleAnswer(answer.label, answer.name))
+  for (let i = 0; i < answers.length; i++) {
+    node.appendChild(createSingleAnswer(i, answers[i]))
   }
 
   return node
 }
 
-function createSingleQuestion (question) {
-  const questionTemplate = document.getElementById('question').innerHTML
-  const template = questionTemplate.replace('#PROMPT', question.prompt)
-  const node = Utils.htmlToElement(template)
+function createSingleQuestion (idx, question) {
+  const questionTemplate = document.getElementById('single-question').innerHTML
+  const node = Utils.buildTemplate(questionTemplate, {
+    title: `Question ${idx + 1}`,
+    prompt: question.prompt
+  })
   node.appendChild(createAnswerSet(question.answers))
 
   return node
@@ -38,10 +40,11 @@ function createSingleQuestion (question) {
 
 function createQuestions (questions) {
   const questionContainerTemplate = document.getElementById('question-container').innerHTML
-  const node = Utils.htmlToElement(questionContainerTemplate)
+  const node = Utils.buildTemplate(questionContainerTemplate)
 
-  for (let question of questions) {
-    node.appendChild(createSingleQuestion(question))
+  for (let i = 0; i < questions.length; i++) {
+    const question = questions[i]
+    node.appendChild(createSingleQuestion(i, question))
   }
 
   return node
@@ -49,7 +52,7 @@ function createQuestions (questions) {
 
 function selectQuestion (idx) {
   const visibleClass = 'visible'
-  const questionNodes = store.questionContainer.childNodes
+  const questionNodes = window.store.questionContainer.childNodes
 
   if (idx >= 0 && idx < questionNodes.length) {
     for (let i = 0; i < questionNodes.length; i++) {
@@ -75,21 +78,31 @@ function selectQuestion (idx) {
       nextButton.disabled = false
     }
 
-    store.selected = idx
+    window.store.selected = idx
   } else {
     console.error(`You must select a question idx from 0-${questionNodes.length}.`, idx)
   }
 }
 
 function selectNextQuestion () {
-  if (store.selected < allQuestions.length - 1) {
-    selectQuestion(store.selected + 1)
+  if (window.store.selected < allQuestions.length - 1) {
+    selectQuestion(window.store.selected + 1)
   }
 }
 
 function selectPrevQuestion () {
-  if (store.selected > 0) {
-    selectQuestion(store.selected - 1)
+  if (window.store.selected > 0) {
+    selectQuestion(window.store.selected - 1)
+  }
+}
+
+function selectAnswer (evt) {
+  if (evt.target.type && evt.target.type === 'radio') {
+    const question = evt.target.name
+    const answer = evt.target.value
+    window.store.answers[question] = answer
+
+    setTimeout(selectNextQuestion, 500)
   }
 }
 
@@ -97,7 +110,7 @@ function initQuestions () {
   const target = document.getElementById('target')
   const questionContainer = createQuestions(allQuestions)
   target.appendChild(questionContainer)
-  store.questionContainer = questionContainer
+  window.store.questionContainer = questionContainer
 }
 
 function initListeners () {
@@ -106,6 +119,11 @@ function initListeners () {
 
   const prevButton = document.getElementById(PREV_BUTTON_ID)
   prevButton.addEventListener('click', selectPrevQuestion)
+
+  const answerContainers = document.querySelectorAll('.answer-container')
+  answerContainers.forEach(ac => {
+    ac.addEventListener('click', selectAnswer)
+  })
 }
 
 function init () {
