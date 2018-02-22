@@ -15,10 +15,6 @@ $query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
 
 
 // Project-specific styles
-.templates {
-  display: none;
-}
-
 .main-window {
   background-color: #ddd;
   border-radius: 10px;
@@ -52,7 +48,8 @@ $query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
 
   &:disabled {
     cursor: not-allowed;
-    opacity: .8;
+    opacity: .6;
+    background-color: desaturate($blue, 50%);
   }
 }
 
@@ -72,16 +69,23 @@ $query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
   }
 }
 
+.question-title {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 .question-prompt {
+  font-size: 1.6rem;
   text-align: center;
 }
 
 .answer-container {
   display: flex;
   color: $answer-text-color;
-  font-size: 1.5em;
+  font-size: 1.5rem;
   flex-flow: wrap;
   padding: $answer-margin-size;
+  justify-content: center;
 }
 
 .radio-container {
