@@ -11,6 +11,7 @@ const QUESTION_CONTAINER_TEMPLATE_ID = 'question-container'
 
 const NEXT_BUTTON_ID = 'next-button'
 const PREV_BUTTON_ID = 'prev-button'
+const RESET_BUTTON_ID = 'reset-button'
 const ANSWER_CONTAINER_CLASS = ANSWER_CONTAINER_TEMPLATE_ID
 
 // Global state storage object
@@ -69,6 +70,7 @@ function createQuestions (questions) {
 function setButtonStates (state, questions) {
   const nextButton = document.getElementById(NEXT_BUTTON_ID)
   const prevButton = document.getElementById(PREV_BUTTON_ID)
+  const resetButton = document.getElementById(RESET_BUTTON_ID)
 
   // If this is the first question
   if (state.selected === 0) {
@@ -90,6 +92,13 @@ function setButtonStates (state, questions) {
   } else {
     nextButton.innerText = 'Next'
     // nextButton.disabled = false
+  }
+
+  // If this is the first question and there are none answered
+  if (state.selected === 0 && Object.keys(state.answers).length === 0) {
+    resetButton.disabled = true
+  } else {
+    resetButton.disabled = false
   }
 }
 
@@ -190,6 +199,16 @@ function winningBucket (answers, buckets) {
   return buckets[winningBucketIdx]
 }
 
+function resetQuiz () {
+  window.store.selected = 0
+  window.store.answers = {}
+  const radios = document.querySelectorAll('input[type=radio]')
+  radios.forEach(radio => {
+    radio.checked = false
+  })
+  selectQuestionAndSetButtons(0)
+}
+
 // Start the chain of template compiling to add all questions to the DOM
 function initQuestions () {
   const target = document.getElementById('target')
@@ -205,6 +224,9 @@ function initListeners () {
 
   const prevButton = document.getElementById(PREV_BUTTON_ID)
   prevButton.addEventListener('click', selectPrevQuestion)
+
+  const resetButton = document.getElementById(RESET_BUTTON_ID)
+  resetButton.addEventListener('click', resetQuiz)
 
   const answerContainers = document.querySelectorAll(`.${ANSWER_CONTAINER_CLASS}`)
   answerContainers.forEach(ac => {
