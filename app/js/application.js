@@ -1,45 +1,61 @@
 const Utils = require('./utils.js')
-const allQuestions = require('./questions.js')
+const quizSettings = require('./questions.js')
+
+const allQuestions = quizSettings.questions
+const buckets = quizSettings.buckets
+
+const SINGLE_ANSWER_TEMPLATE_ID = 'single-answer'
+const ANSWER_CONTAINER_TEMPLATE_ID = 'answer-container'
+const SINGLE_QUESTION_TEMPLATE_ID = 'single-question'
+const QUESTION_CONTAINER_TEMPLATE_ID = 'question-container'
 
 const NEXT_BUTTON_ID = 'next-button'
 const PREV_BUTTON_ID = 'prev-button'
+const ANSWER_CONTAINER_CLASS = ANSWER_CONTAINER_TEMPLATE_ID
 
+// Global state storage object
 window.store = {
   selected: 0,
   questionContainer: null,
   answers: {}
 }
 
+// Parse template for a single answer
 function createSingleAnswer (idx, answer) {
-  const answerTemplate = document.getElementById('single-answer').innerHTML
-  answer.value = idx
+  const answerTemplate = document.getElementById(SINGLE_ANSWER_TEMPLATE_ID).innerHTML
   return Utils.buildTemplate(answerTemplate, answer)
 }
 
-function createAnswerSet (answers) {
-  const answerContainerTemplate = document.getElementById('answer-container').innerHTML
+// Parse templates for an answer set of a particular question
+function createAnswerSet (questionIdx, answers) {
+  const answerContainerTemplate = document.getElementById(ANSWER_CONTAINER_TEMPLATE_ID).innerHTML
   const node = Utils.buildTemplate(answerContainerTemplate)
 
   for (let i = 0; i < answers.length; i++) {
-    node.appendChild(createSingleAnswer(i, answers[i]))
+    const answer = answers[i]
+    answer.value = i
+    answer.name = questionIdx
+    node.appendChild(createSingleAnswer(i, answer))
   }
 
   return node
 }
 
+// Parse template for a single question
 function createSingleQuestion (idx, question) {
-  const questionTemplate = document.getElementById('single-question').innerHTML
+  const questionTemplate = document.getElementById(SINGLE_QUESTION_TEMPLATE_ID).innerHTML
   const node = Utils.buildTemplate(questionTemplate, {
     title: `Question ${idx + 1}`,
     prompt: question.prompt
   })
-  node.appendChild(createAnswerSet(question.answers))
+  node.appendChild(createAnswerSet(idx, question.answers))
 
   return node
 }
 
+// Parse templates for the entire question set
 function createQuestions (questions) {
-  const questionContainerTemplate = document.getElementById('question-container').innerHTML
+  const questionContainerTemplate = document.getElementById(QUESTION_CONTAINER_TEMPLATE_ID).innerHTML
   const node = Utils.buildTemplate(questionContainerTemplate)
 
   for (let i = 0; i < questions.length; i++) {
@@ -50,62 +66,98 @@ function createQuestions (questions) {
   return node
 }
 
-function selectQuestion (idx) {
-  const visibleClass = 'visible'
-  const questionNodes = window.store.questionContainer.childNodes
+function setButtonStates (state, questions) {
+  const nextButton = document.getElementById(NEXT_BUTTON_ID)
+  const prevButton = document.getElementById(PREV_BUTTON_ID)
 
-  if (idx >= 0 && idx < questionNodes.length) {
-    for (let i = 0; i < questionNodes.length; i++) {
-      if (i === idx) {
-        questionNodes[i].classList.add(visibleClass)
-      } else {
-        questionNodes[i].classList.remove(visibleClass)
-      }
-    }
-
-    const nextButton = document.getElementById(NEXT_BUTTON_ID)
-    const prevButton = document.getElementById(PREV_BUTTON_ID)
-
-    if (idx === 0) {
-      prevButton.disabled = true
-    } else {
-      prevButton.disabled = false
-    }
-
-    if (idx === questionNodes.length - 1) {
-      nextButton.disabled = true
-    } else {
-      nextButton.disabled = false
-    }
-
-    window.store.selected = idx
+  // If this is the first question
+  if (state.selected === 0) {
+    prevButton.disabled = true
   } else {
-    console.error(`You must select a question idx from 0-${questionNodes.length}.`, idx)
+    prevButton.disabled = false
+  }
+
+  // If this is the last question
+  if (state.selected === questions.length - 1) {
+    nextButton.disabled = true
+  } else {
+    nextButton.disabled = false
   }
 }
 
+function setQuestionStates (state) {
+  const visibleClass = 'visible'
+  const questionNodes = state.questionContainer.childNodes
+
+  for (let i = 0; i < questionNodes.length; i++) {
+    if (i === state.selected) {
+      questionNodes[i].classList.add(visibleClass)
+    } else {
+      questionNodes[i].classList.remove(visibleClass)
+    }
+  }
+}
+
+// Select a specific question
+// Contains logic to enable/disable the prev/next buttons
+// and not cause an array out of bounds error
+function selectQuestion (idx) {
+  if (idx >= 0 && idx < allQuestions.length) {
+    window.store.selected = idx
+    setQuestionStates(window.store)
+    setButtonStates(window.store, allQuestions)
+  } else {
+    console.error(`You must select a question idx from 0-${allQuestions.length}.`, idx)
+  }
+}
+
+// Listener for the next button
 function selectNextQuestion () {
   if (window.store.selected < allQuestions.length - 1) {
     selectQuestion(window.store.selected + 1)
   }
 }
 
+// Listener for the prev button
 function selectPrevQuestion () {
   if (window.store.selected > 0) {
     selectQuestion(window.store.selected - 1)
   }
 }
 
+// Listener for the answer radio buttons
 function selectAnswer (evt) {
   if (evt.target.type && evt.target.type === 'radio') {
     const question = evt.target.name
     const answer = evt.target.value
-    window.store.answers[question] = answer
+    window.store.answers[question] = allQuestions[question].answers[answer]
+    console.log(winningBucket(window.store.answers, buckets))
 
     setTimeout(selectNextQuestion, 500)
   }
 }
 
+// Reduces the `answers` object into bucket totals for determing the outcome placement
+function bucketTotals (answers) {
+  return Object.keys(answers).reduce((totals, key) => {
+    const answer = answers[key]
+    const bucket = answer.bucket
+    totals[bucket] ? totals[bucket]++ : totals[bucket] = 1
+
+    return totals
+  }, {})
+}
+
+function winningBucket (answers, buckets) {
+  const totals = bucketTotals(answers)
+
+  const sortedBucketIdxs = Utils.sortObjectValues(totals).reverse()
+  const winningBucketIdx = sortedBucketIdxs[0]
+
+  return buckets[winningBucketIdx]
+}
+
+// Start the chain of template compiling to add all questions to the DOM
 function initQuestions () {
   const target = document.getElementById('target')
   const questionContainer = createQuestions(allQuestions)
@@ -113,6 +165,7 @@ function initQuestions () {
   window.store.questionContainer = questionContainer
 }
 
+// Setup various event listeners
 function initListeners () {
   const nextButton = document.getElementById(NEXT_BUTTON_ID)
   nextButton.addEventListener('click', selectNextQuestion)
@@ -120,7 +173,7 @@ function initListeners () {
   const prevButton = document.getElementById(PREV_BUTTON_ID)
   prevButton.addEventListener('click', selectPrevQuestion)
 
-  const answerContainers = document.querySelectorAll('.answer-container')
+  const answerContainers = document.querySelectorAll(`.${ANSWER_CONTAINER_CLASS}`)
   answerContainers.forEach(ac => {
     ac.addEventListener('click', selectAnswer)
   })
