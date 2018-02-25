@@ -78,10 +78,18 @@ function setButtonStates (state, questions) {
   }
 
   // If this is the last question
-  if (state.selected === questions.length - 1) {
-    nextButton.disabled = true
+  if (lastQuestionSelected(state, questions)) {
+    nextButton.innerText = 'Score'
+
+    // ... and if all questions have an answer
+    if (allQuestionsAnswered(state, questions)) {
+      nextButton.disabled = false
+    } else {
+      nextButton.disabled = true
+    }
   } else {
-    nextButton.disabled = false
+    nextButton.innerText = 'Next'
+    // nextButton.disabled = false
   }
 }
 
@@ -101,27 +109,41 @@ function setQuestionStates (state) {
 // Select a specific question
 // Contains logic to enable/disable the prev/next buttons
 // and not cause an array out of bounds error
-function selectQuestion (idx) {
+function selectQuestionAndSetButtons (idx) {
   if (idx >= 0 && idx < allQuestions.length) {
     window.store.selected = idx
     setQuestionStates(window.store)
-    setButtonStates(window.store, allQuestions)
   } else {
     console.error(`You must select a question idx from 0-${allQuestions.length}.`, idx)
+  }
+
+  setButtonStates(window.store, allQuestions)
+}
+
+// Select the next question
+function selectNextQuestion () {
+  if (!lastQuestionSelected(window.store, allQuestions)) {
+    selectQuestionAndSetButtons(window.store.selected + 1)
+  } else {
+    selectQuestionAndSetButtons(window.store.selected)
   }
 }
 
 // Listener for the next button
-function selectNextQuestion () {
-  if (window.store.selected < allQuestions.length - 1) {
-    selectQuestion(window.store.selected + 1)
+function nextButtonListener () {
+  if (lastQuestionSelected(window.store, allQuestions) && allQuestionsAnswered(window.store, allQuestions)) {
+    scoreQuiz(window.store, buckets)
+  } else {
+    selectNextQuestion()
   }
 }
 
-// Listener for the prev button
+// Select the previous question
 function selectPrevQuestion () {
   if (window.store.selected > 0) {
-    selectQuestion(window.store.selected - 1)
+    selectQuestionAndSetButtons(window.store.selected - 1)
+  } else {
+    selectQuestionAndSetButtons(window.store.selected)
   }
 }
 
@@ -131,10 +153,21 @@ function selectAnswer (evt) {
     const question = evt.target.name
     const answer = evt.target.value
     window.store.answers[question] = allQuestions[question].answers[answer]
-    console.log(winningBucket(window.store.answers, buckets))
 
     setTimeout(selectNextQuestion, 500)
   }
+}
+
+function lastQuestionSelected (state, questions) {
+  return state.selected === questions.length - 1
+}
+
+function allQuestionsAnswered (state, questions) {
+  return Object.keys(state.answers).length === questions.length
+}
+
+function scoreQuiz (state, buckets) {
+  console.log(winningBucket(state.answers, buckets))
 }
 
 // Reduces the `answers` object into bucket totals for determing the outcome placement
@@ -168,7 +201,7 @@ function initQuestions () {
 // Setup various event listeners
 function initListeners () {
   const nextButton = document.getElementById(NEXT_BUTTON_ID)
-  nextButton.addEventListener('click', selectNextQuestion)
+  nextButton.addEventListener('click', nextButtonListener)
 
   const prevButton = document.getElementById(PREV_BUTTON_ID)
   prevButton.addEventListener('click', selectPrevQuestion)
@@ -182,7 +215,7 @@ function initListeners () {
 function init () {
   initQuestions()
   initListeners()
-  selectQuestion(0)
+  selectQuestionAndSetButtons(0)
 }
 
 init()
