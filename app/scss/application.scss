@@ -9,30 +9,66 @@ $answer-background-color--selected: $green;
 $answer-background-color--selected-hover: lighter($answer-background-color--selected, 5%);
 $answer-text-color: $white;
 
-$answer-margin-size: 20px;
-$min-answer-size: 250px;
-$query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
+$answer-margin-size: 15px;
+$min-answer-height: 150px;
+$min-answer-width: 250px;
+$query-size: 640px;
 
 
 // Project-specific styles
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: desaturate(darken(blue, 40%), 70%);
+  display: flex;
+  justify-content: center;
+}
+
 .main-window {
+  $main-window-margin: 20px;
   background-color: #ddd;
   border-radius: 10px;
-  margin: 20px;
+  margin: 40px $main-window-margin $main-window-margin;
+  flex-basis: 870px;
+  flex-shrink: 1;
   padding: 20px;
+
+  @media (max-width: $query-size) {
+    margin-top: $main-window-margin;
+  }
 
   &-footer {
     display: flex;
     justify-content: space-between;
+    margin-top: $answer-margin-size;
   }
 }
 
-.next-button,
-.prev-button {
-  background-color: $blue;
-  border: none;
+@mixin btn-color($text-color, $background-color, $border-color) {
+  background-color: $background-color;
+  border-color: $border-color;
+  color: $text-color;
+
+  &:not(:disabled):hover {
+    background-color: lighten($background-color, 5%);
+  }
+
+  &:not(:disabled):active {
+    background-color: darken($background-color, 5%);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: .6;
+    background-color: desaturate($background-color, 50%);
+  }
+}
+
+.btn {
+  border: solid 1px;
   border-radius: 4px;
-  color: $white;
   cursor: pointer;
   font-size: 1em;
   padding: 10px 20px;
@@ -42,15 +78,17 @@ $query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
   transition-duration: .25s;
   transition-timing-function: ease-in-out;
 
-  &:not(:disabled):hover {
-    background-color: lighten($blue, 5%);
+  &-red {
+    @include btn-color($red, #ddd, #bbb);
   }
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: .6;
-    background-color: desaturate($blue, 50%);
+  &-blue {
+    @include btn-color($white, $blue, lighter($blue, 10%));
   }
+}
+
+.reset-button {
+  align-self: center;
 }
 
 .next-button {
@@ -70,12 +108,13 @@ $query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
 }
 
 .question-title {
-  margin-bottom: 20px;
+  margin-bottom: $answer-margin-size;
   text-align: center;
 }
 
 .question-prompt {
   font-size: 1.6rem;
+  margin-bottom: $answer-margin-size;
   text-align: center;
 }
 
@@ -83,22 +122,25 @@ $query-size: ($min-answer-size*2 + $answer-margin-size*6) - 1;
   display: flex;
   color: $answer-text-color;
   font-size: 1.5rem;
+  letter-spacing: .5px;
+  line-height: 2rem;
   flex-flow: wrap;
-  padding: $answer-margin-size;
   justify-content: center;
 }
 
 .radio-container {
   @extend .no-select;
 
+  box-sizing: border-box;
   display: flex;
   position: relative;
-  height: $min-answer-size;
+  height: $min-answer-height;
   align-items: center;
   justify-content: center;
   margin: $answer-margin-size;
+  padding: 15px;
   text-align: center;
-  flex-basis: $min-answer-size;
+  flex-basis: $min-answer-width;
   flex-grow: 0;
   flex-shrink: 0;
   
