@@ -9,8 +9,14 @@ $answer-background-color--selected: $green;
 $answer-background-color--selected-hover: lighter($answer-background-color--selected, 5%);
 $answer-text-color: $white;
 
+$main-window-margin: 20px;
+$main-window-margin-mobile: 15px;
+$main-window-padding: 20px;
+$main-window-padding-mobile: 15px;
 $answer-margin-size: 15px;
+$answer-margin-size-mobile: 5px 5px 10px;
 $min-answer-height: 150px;
+$min-answer-height-mobile: 100px;
 $min-answer-width: 250px;
 $query-size: 640px;
 
@@ -20,6 +26,13 @@ $query-size: 640px;
   box-sizing: border-box;
 }
 
+html,
+body {
+  @media (max-width: $query-size) {
+    min-height: 100%;
+  }
+}
+
 body {
   background-color: desaturate(darken(blue, 40%), 70%);
   display: flex;
@@ -27,16 +40,21 @@ body {
 }
 
 .main-window {
-  $main-window-margin: 20px;
+  @extend .no-select;
   background-color: #ddd;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   margin: 40px $main-window-margin $main-window-margin;
   flex-basis: 870px;
   flex-shrink: 1;
-  padding: 20px;
+  padding: $main-window-padding;
 
   @media (max-width: $query-size) {
-    margin-top: $main-window-margin;
+    margin: $main-window-margin-mobile;
+    min-height: calc(100vh - #{$main-window-margin-mobile * 2});
+    padding: $main-window-padding-mobile;
   }
 
   &-footer {
@@ -67,6 +85,7 @@ body {
 }
 
 .btn {
+  @extend .no-select;
   border: solid 1px;
   border-radius: 4px;
   cursor: pointer;
@@ -126,6 +145,10 @@ body {
   line-height: 2rem;
   flex-flow: wrap;
   justify-content: center;
+
+  @media (max-width: $query-size) {
+    font-size: 1.2rem;
+  }
 }
 
 .radio-container {
@@ -151,6 +174,9 @@ body {
   @media (max-width: $query-size) {
     flex-grow: 1;
     flex-shrink: 1;
+    // height: $min-answer-height-mobile;
+    height: auto;
+    margin: $answer-margin-size-mobile;
   }
 
   input {
