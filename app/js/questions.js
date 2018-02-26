@@ -88,12 +88,12 @@ module.exports = {
       ]
     },
     {
-      prompt: 'This is the prompt for question 10',
+      prompt: 'What is your  favorite outfit?',
       answers: [
-        { label: 'Answer 1', name: '10', bucket: '0' },
-        { label: 'Answer 2', name: '11', bucket: '0' },
-        { label: 'Answer 3', name: '12', bucket: '0' },
-        { label: 'Answer 4', name: '13', bucket: '0' }
+        { label: 'Anything black', name: '10', bucket: '0' },
+        { label: 'Tight pants and knee high boots', name: '11', bucket: '2' },
+        { label: 'Old rags and a berlap robe', name: '12', bucket: '1' },
+        { label: 'I look good in anything', name: '13', bucket: '3' }
       ]
     }
   ]
