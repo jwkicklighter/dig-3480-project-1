@@ -11,13 +11,28 @@
 </head>
 <body>
   <div class="main-window">
-    <form id="target">
-    </form>
+    <div class="main-window-splash-section visible">
+      <img src="assets/logo.png" alt="logo" class="main-window-splash-section-logo" />
+      <h1 class="main-window-splash-section-title">Which Star Wars Character Are You?</h1>
+      <button id="start-button" class="btn btn-blue btn-big start-button">Take the Quiz</button>
+    </div>
 
-    <div class="main-window-footer">
-      <button id="prev-button" class="btn btn-blue prev-button">Prev</button>
-      <button id="reset-button" class="btn btn-red reset-button">Start Over</button>
-      <button id="next-button" class="btn btn-blue next-button">Next</button>
+    <div class="main-window-question-section">
+      <form id="question-target">
+      </form>
+  
+      <div class="main-window-question-section-footer">
+        <button id="prev-button" class="btn btn-blue prev-button">Prev</button>
+        <button id="reset-button" class="btn btn-red reset-button">Start Over</button>
+        <button id="next-button" class="btn btn-blue next-button">Next</button>
+      </div>
+    </div>
+
+    <div class="main-window-result-section">
+      <h1 class="main-window-result-section-title" id="result-target"></h1>
+      <img src="" alt="" id="result-img-target" class="main-window-result-section-img" />
+      <p id="result-description-target" class="main-window-result-section-description"></p>
+      <button id="restart-button" class="btn btn-red btn-big restart-button">Try Again?</button>
     </div>
   </div>
 

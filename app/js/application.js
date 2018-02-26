@@ -9,10 +9,22 @@ const ANSWER_CONTAINER_TEMPLATE_ID = 'answer-container'
 const SINGLE_QUESTION_TEMPLATE_ID = 'single-question'
 const QUESTION_CONTAINER_TEMPLATE_ID = 'question-container'
 
+const QUESTION_TARGET_ID = 'question-target'
+const RESULT_TARGET_ID = 'result-target'
+const RESULT_DESCRIPTION_TARGET_ID = 'result-description-target'
+const RESULT_IMG_TARGET_ID = 'result-img-target'
+
 const NEXT_BUTTON_ID = 'next-button'
 const PREV_BUTTON_ID = 'prev-button'
 const RESET_BUTTON_ID = 'reset-button'
+const START_BUTTON_ID = 'start-button'
+const RESTART_BUTTON_ID = 'restart-button'
+
 const ANSWER_CONTAINER_CLASS = ANSWER_CONTAINER_TEMPLATE_ID
+const QUESTION_SECTION_CLASS = 'main-window-question-section'
+const SPLASH_SECTION_CLASS = 'main-window-splash-section'
+const RESULT_SECTION_CLASS = 'main-window-result-section'
+const VISIBLE_CLASS = 'visible'
 
 // Global state storage object
 window.store = {
@@ -103,14 +115,13 @@ function setButtonStates (state, questions) {
 }
 
 function setQuestionStates (state) {
-  const visibleClass = 'visible'
   const questionNodes = state.questionContainer.childNodes
 
   for (let i = 0; i < questionNodes.length; i++) {
     if (i === state.selected) {
-      questionNodes[i].classList.add(visibleClass)
+      questionNodes[i].classList.add(VISIBLE_CLASS)
     } else {
-      questionNodes[i].classList.remove(visibleClass)
+      questionNodes[i].classList.remove(VISIBLE_CLASS)
     }
   }
 }
@@ -156,6 +167,24 @@ function selectPrevQuestion () {
   }
 }
 
+function startButtonListener () {
+  const splash = document.querySelector(`.${SPLASH_SECTION_CLASS}`)
+  const questions = document.querySelector(`.${QUESTION_SECTION_CLASS}`)
+
+  splash.classList.remove(VISIBLE_CLASS)
+  questions.classList.add(VISIBLE_CLASS)
+}
+
+function restartButtonListener () {
+  const questions = document.querySelector(`.${QUESTION_SECTION_CLASS}`)
+  const results = document.querySelector(`.${RESULT_SECTION_CLASS}`)
+
+  results.classList.remove(VISIBLE_CLASS)
+  questions.classList.add(VISIBLE_CLASS)
+
+  resetQuiz()
+}
+
 // Listener for the answer radio buttons
 function selectAnswer (evt) {
   if (evt.target.type && evt.target.type === 'radio') {
@@ -176,7 +205,20 @@ function allQuestionsAnswered (state, questions) {
 }
 
 function scoreQuiz (state, buckets) {
-  console.log(winningBucket(state.answers, buckets))
+  const questions = document.querySelector(`.${QUESTION_SECTION_CLASS}`)
+  const results = document.querySelector(`.${RESULT_SECTION_CLASS}`)
+
+  questions.classList.remove(VISIBLE_CLASS)
+  results.classList.add(VISIBLE_CLASS)
+
+  const resultTarget = document.getElementById(RESULT_TARGET_ID)
+  const resultDescriptionTarget = document.getElementById(RESULT_DESCRIPTION_TARGET_ID)
+  const resultImgTarget = document.getElementById(RESULT_IMG_TARGET_ID)
+  const winningBucket = getWinningBucket(state.answers, buckets)
+
+  resultTarget.innerText = `You are ${winningBucket.title}!`
+  resultDescriptionTarget.innerText = winningBucket.description
+  resultImgTarget.src = `assets/${winningBucket.img}`
 }
 
 // Reduces the `answers` object into bucket totals for determing the outcome placement
@@ -190,7 +232,7 @@ function bucketTotals (answers) {
   }, {})
 }
 
-function winningBucket (answers, buckets) {
+function getWinningBucket (answers, buckets) {
   const totals = bucketTotals(answers)
 
   const sortedBucketIdxs = Utils.sortObjectValues(totals).reverse()
@@ -211,7 +253,7 @@ function resetQuiz () {
 
 // Start the chain of template compiling to add all questions to the DOM
 function initQuestions () {
-  const target = document.getElementById('target')
+  const target = document.getElementById(QUESTION_TARGET_ID)
   const questionContainer = createQuestions(allQuestions)
   target.appendChild(questionContainer)
   window.store.questionContainer = questionContainer
@@ -227,6 +269,12 @@ function initListeners () {
 
   const resetButton = document.getElementById(RESET_BUTTON_ID)
   resetButton.addEventListener('click', resetQuiz)
+
+  const startButton = document.getElementById(START_BUTTON_ID)
+  startButton.addEventListener('click', startButtonListener)
+
+  const restartButton = document.getElementById(RESTART_BUTTON_ID)
+  restartButton.addEventListener('click', restartButtonListener)
 
   const answerContainers = document.querySelectorAll(`.${ANSWER_CONTAINER_CLASS}`)
   answerContainers.forEach(ac => {
