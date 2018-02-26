@@ -1,5 +1,5 @@
 # DIG 3480 Project 1
-Star Wars Personality Quiz [Live Site](https://dig-3480-star-wars-quiz.netlify.com)
+Star Wars Personality Quiz ([Live Site](https://dig-3480-star-wars-quiz.netlify.com))
 
 ## Project Structure
 - The project code lives in the `app/` directory.
