@@ -10,7 +10,7 @@ var browserifyOptions = {
 }
 
 // Static Server + watching scss/html files
-gulp.task('serve', ['clean:build', 'html', 'sass', 'js'], function () {
+gulp.task('serve', ['clean:build', 'html', 'sass', 'js', 'assets'], function () {
   browserSync.init({
     server: './build'
   })
@@ -18,6 +18,7 @@ gulp.task('serve', ['clean:build', 'html', 'sass', 'js'], function () {
   gulp.watch('./app/scss/**/*', ['sass'])
   gulp.watch('./app/js/**/*', ['js'])
   gulp.watch('./app/*.html', ['html'])
+  gulp.watch('./app/assets/**/*', ['assets'])
 })
 
 // Compile sass into CSS & auto-inject into browsers
@@ -41,6 +42,12 @@ gulp.task('html', function () {
     .pipe(browserSync.stream())
 })
 
+gulp.task('assets', function () {
+  return gulp.src('./app/assets/**/*')
+    .pipe(gulp.dest('./build/assets'))
+    .pipe(browserSync.stream())
+})
+
 gulp.task('clean:build', function () {
   return del.sync('./build')
 })
@@ -52,6 +59,11 @@ gulp.task('clean:dist', function () {
 gulp.task('build:html', function () {
   return gulp.src('./app/*.html')
     .pipe(gulp.dest('./dist'))
+})
+
+gulp.task('build:assets', function () {
+  return gulp.src('./app/assets/**/*')
+    .pipe(gulp.dest('./dist/assets'))
 })
 
 gulp.task('build:js', function () {
@@ -72,5 +84,5 @@ gulp.task('default', ['serve'])
 gulp.task('clean', ['clean:build', 'clean:dist'])
 
 gulp.task('build', function (callback) {
-  runSequence('clean:dist', ['build:html', 'build:js', 'build:sass'], callback)
+  runSequence('clean:dist', ['build:html', 'build:assets', 'build:js', 'build:sass'], callback)
 })
