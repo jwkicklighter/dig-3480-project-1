@@ -1,9 +1,9 @@
 module.exports = {
   buckets: [
-    { title: 'Darth Vader', description: 'Sed iaculis ultricies nulla in.', img: 'darth.resized.png' },
-    { title: 'Yoda', description: 'Sed iaculis ultricies nulla in.', img: 'yoda.resized.png' },
-    { title: 'Luke Skywalker', description: 'Sed iaculis ultricies nulla in.', img: 'luke.resized.png' },
-    { title: 'Han Solo', description: 'Sed iaculis ultricies nulla in.', img: 'han.resized.png' }
+    { title: 'Darth Vader', description: 'You yearn for total control and order. But is this your normal personality, or is it stemming from emotional anguish?', img: 'darth.resized.png' },
+    { title: 'Yoda', description: 'You are wise and accomplished, and ready to pass on your wisdom to others.', img: 'yoda.resized.png' },
+    { title: 'Luke Skywalker', description: 'You rely on being in the right place, at the right time. Something about a prophecy..?', img: 'luke.resized.png' },
+    { title: 'Han Solo', description: 'You\'re tough, independent, and cocky. You don\'t need anyone by your side as long as you\'ve got a blaster in your hand. Well, and a furry sidekick.', img: 'han.resized.png' }
   ],
   questions: [
     {
